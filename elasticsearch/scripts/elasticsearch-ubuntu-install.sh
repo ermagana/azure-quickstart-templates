@@ -341,9 +341,12 @@ then
 fi
 
 # Configure discovery
-log "Update configuration with hosts configuration of $HOSTS_CONFIG"
-echo "discovery.zen.ping.multicast.enabled: false" >> /etc/elasticsearch/elasticsearch.yml
-echo "discovery.zen.ping.unicast.hosts: $HOSTS_CONFIG" >> /etc/elasticsearch/elasticsearch.yml
+if [["${HOSTS_CONFIG}" != "[\"\"]" ]];
+then
+  log "Update configuration with hosts configuration of $HOSTS_CONFIG"
+  echo "discovery.zen.ping.multicast.enabled: false" >> /etc/elasticsearch/elasticsearch.yml
+  echo "discovery.zen.ping.unicast.hosts: $HOSTS_CONFIG" >> /etc/elasticsearch/elasticsearch.yml
+fi
 
 # Configure Elasticsearch node type
 log "Configure master/client/data node type flags master-$MASTER_ONLY_NODE data-$DATA_NODE"
@@ -366,10 +369,13 @@ else
     echo "node.data: true" >> /etc/elasticsearch/elasticsearch.yml
 fi
 
-echo "discovery.zen.minimum_master_nodes: 2" >> /etc/elasticsearch/elasticsearch.yml
+if [["${HOSTS_CONFIG}" != "[\"\"]" ]];
+then
+  echo "discovery.zen.minimum_master_nodes: 2" >> /etc/elasticsearch/elasticsearch.yml
+fi
 
 if [[ "${ES_VERSION}" == \2* ]]; then
-    echo "network.host: _non_loopback_" >> /etc/elasticsearch/elasticsearch.yml
+    echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
 fi
 
 if [[ "${MARVEL_ENDPOINTS}" ]]; then
